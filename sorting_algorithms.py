@@ -1,3 +1,33 @@
+import random
+import timeit
+
+
+def generate_random_data():
+    """
+    Generate random list
+    :return:
+    """
+    a = []
+    for _ in range(10000):
+        a.append(random.randint(0, 1000))
+    return a
+
+
+def bubble_sort(arr):
+    """
+    Function which represent bubble sort algorithm
+    :param list arr: list to sort
+    :return: sorted list
+    """
+    length = len(arr) - 1
+    sorted = False
+
+    while not sorted:
+        sorted = True
+        for k in range(length):
+            if arr[k] > arr[k+1]:
+                sorted = False
+                arr[k], arr[k+1] = arr[k+1], arr[k]
 
 
 def insertion_sort(arr: list):
@@ -19,48 +49,48 @@ def merge(a: list, b: list):
     :param list b: second list
     :return: merged list
     """
-    # reserve space for an empty list
-    c = [0] * (len(a) + len(b))
-    i = k = n = 0
-    # merge two arrays until one of them becomes empty
-    while i < len(a) and k < len(b):
+    len_a = len(a)
+    len_b = len(b)
+    merged_list = []
+    i = 0
+    k = 0
+    while True:
+        if i >= len_a:
+            merged_list.extend(b[k:])
+            return merged_list
+
+        if k >= len_b:
+            merged_list.extend(a[i:])
+            return merged_list
+
         if a[i] <= b[k]:
-            c[n] = a[i]
+            merged_list.append(a[i])
             i += 1
-            n += 1
         else:
-            c[n] = b[k]
+            merged_list.append(b[k])
             k += 1
-            n += 1
-    # one of the arrays is empty, but we do not know which of them
-    # so we need to go through two cycles again in masses and pull out the last elements
-    while i < len(a):
-        c[n] = a[i]
-        i += 1
-        n += 1
-    while k < len(b):
-        c[n] = b[k]
-        k += 1
-        n += 1
-
-    return c
 
 
-def merge_sort(arr: list):
+def merge_sort(arr):
     """
     Function which represent merge sorting algorithm
     :param list arr: list to sort
     :return: sorted list
     """
-    if len(arr) <= 1:
-        return
-    middle = len(arr) // 2
-    left, right = arr[:middle], arr[middle:]
-    merge_sort(left)
-    merge_sort(right)
+    unsorted_list = arr[:]
+    length = len(unsorted_list)
+    if length <= 1:
+        return unsorted_list
+    elif length == 2:
+        if unsorted_list[0] > unsorted_list[1]:
+            unsorted_list[0], unsorted_list[1] = unsorted_list[1], unsorted_list[0]
+        return unsorted_list
+    else:
+        middle = length // 2
+        first_list = merge_sort(unsorted_list[middle:])
+        second_list = merge_sort(unsorted_list[:middle])
 
-    merged_arr = merge(left, right)
-    arr[:] = merged_arr[:]
+        return merge(first_list, second_list)
 
 
 def quick_sort(arr):
@@ -86,6 +116,23 @@ def quick_sort(arr):
     arr[:] = left + middle + right
 
 
-array = [5, 2, 3, 1, 4, 10, 100, 46, 11, 7]
-quick_sort(array)
-print(array)
+"""
+    Table that shows the execution time of the algorithms (in seconds)
+    +----------+-----------+--------+-------+-------+
+    | Elements | Insertion | Bubble | Merge | Quick |
+    +======================+========+=======+=======+
+    | 10       | 0.93      | 1.06   | 7.64  | 8.31  | 
+    +----------------------+--------+-------+-------+
+    | 100      | 7.03      | 7.06   |131.93 |       |
+    +----------------------+--------+-------+-------+
+    | 1000     | 87.06     | 95.78  |1712.49|       |
+    +----------------------+--------+-------+-------+
+    | 10000    | 880.05    |1135.09 | ...   |       |
+    +----------------------+--------+-------+-------+
+    | 100000   | ...       | ...    | ...   |       |
+    +----------------------+--------+-------+-------+
+"""
+
+arr = generate_random_data()
+t = timeit.Timer("bubble_sort(arr)", "from __main__ import bubble_sort, arr, merge")
+print(t.timeit())
